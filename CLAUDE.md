@@ -65,5 +65,5 @@ screenshots, curl output). Don't move to the next phase before I show evidence.
 
 ## Status
 
-Current phase: 2 (not started). Phase 0 done 2026-09-14. Phase 1 done 2026-09-16: ECR, VPC, ALB, 2 IAM roles, ECS service with circuit breaker, curl via ALB OK.
+Current phase: 3 (not started). Phase 0 done 2026-09-14. Phase 1 done 2026-09-16: ECR, VPC, ALB, 2 IAM roles, ECS service with circuit breaker, curl via ALB OK. Phase 2 done 2026-09-16: OIDC provider, 2 roles (ci/deploy) with immutable sub claims, smoke test workflow passed.
 Update this line every time I confirm a phase is done.
