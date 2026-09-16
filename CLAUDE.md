@@ -40,6 +40,7 @@ Stack: GitHub Actions - Docker - Amazon ECR - ECS Fargate - ALB
 Constraints: no Kubernetes, no NAT Gateway, cost-optimized.
 
 Roadmap (sequential, no skipping ahead):
+
 - Phase 0: Small app (/healthz, /version) + multi-stage Dockerfile, non-root user
 - Phase 1: Build AWS by hand - ECR, VPC + 2 public subnets, ALB (target type = ip),
   2 IAM roles (task execution role vs task role), ECS cluster + service,
@@ -57,10 +58,12 @@ A phase counts as done only when there is real evidence it ran (logs,
 screenshots, curl output). Don't move to the next phase before I show evidence.
 
 ## Two questions I must be able to answer fluently by the end
+
 - Why tag images with the commit SHA instead of `latest`?
 - How does rollback work? Distinguish automatic from manual rollback.
-Ask me these two from time to time.
+  Ask me these two from time to time.
 
 ## Status
-Current phase: 1 (not started). Phase 0 done 2026-09-14: multi-stage Dockerfile, non-root, 333MB, curl evidence.
+
+Current phase: 2 (not started). Phase 0 done 2026-09-14. Phase 1 done 2026-09-16: ECR, VPC, ALB, 2 IAM roles, ECS service with circuit breaker, curl via ALB OK.
 Update this line every time I confirm a phase is done.
