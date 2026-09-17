@@ -1,0 +1,142 @@
+name: Manual Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: "Task definition revision to deploy, for example: 3"
+        required: true
+        type: string
+      reason:
+        description: "Reason for the rollback"
+        required: false
+        type: string
+
+jobs:
+  rollback:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::080577529751:role/github-actions-deploy-role
+          aws-region: ap-southeast-1
+
+      - name: Inspect target revision
+        id: target
+        env:
+          REVISION: ${{ inputs.revision }}
+          REASON: ${{ inputs.reason }}
+        run: |
+          set -euo pipefail
+
+          if [[ ! "$REVISION" =~ ^[1-9][0-9]*$ ]]; then
+            echo "Revision must be a positive number"
+            exit 1
+          fi
+
+          TASK_DEFINITION="fargate-app:$REVISION"
+
+          TASK_JSON=$(aws ecs describe-task-definition \
+            --task-definition "$TASK_DEFINITION")
+
+          TASK_DEFINITION_ARN=$(printf '%s' "$TASK_JSON" |
+            jq -r '.taskDefinition.taskDefinitionArn')
+
+          STATUS=$(printf '%s' "$TASK_JSON" |
+            jq -r '.taskDefinition.status')
+
+          IMAGE_URI=$(printf '%s' "$TASK_JSON" |
+            jq -r '.taskDefinition.containerDefinitions[] |
+            select(.name == "app") | .image')
+
+          if [ "$STATUS" != "ACTIVE" ]; then
+            echo "Task definition is not ACTIVE: $STATUS"
+            exit 1
+          fi
+
+          if [ -z "$IMAGE_URI" ] || [ "$IMAGE_URI" = "null" ]; then
+            echo "Could not find the app container image"
+            exit 1
+          fi
+
+          EXPECTED_COMMIT="${IMAGE_URI##*:}"
+
+          echo "Rollback reason: ${REASON:-Not provided}"
+          echo "Target task definition: $TASK_DEFINITION_ARN"
+          echo "Target image: $IMAGE_URI"
+          echo "Expected commit: $EXPECTED_COMMIT"
+
+          echo "Container configuration:"
+          printf '%s' "$TASK_JSON" |
+            jq '.taskDefinition.containerDefinitions[] |
+            select(.name == "app") |
+            {
+              image,
+              environment: (.environment // [])
+            }'
+
+          echo "task_definition_arn=$TASK_DEFINITION_ARN" >> "$GITHUB_OUTPUT"
+          echo "expected_commit=$EXPECTED_COMMIT" >> "$GITHUB_OUTPUT"
+
+      - name: Update ECS service
+        env:
+          TASK_DEFINITION_ARN: ${{ steps.target.outputs.task_definition_arn }}
+        run: |
+          aws ecs update-service \
+            --cluster fargate-cluster \
+            --service fargate-service \
+            --task-definition "$TASK_DEFINITION_ARN" \
+            --query 'service.[serviceName,taskDefinition]' \
+            --output text
+
+          aws ecs wait services-stable \
+            --cluster fargate-cluster \
+            --services fargate-service
+
+          echo "ECS service is stable"
+
+      - name: Verify rollback
+        env:
+          EXPECTED_TASK_DEFINITION: ${{ steps.target.outputs.task_definition_arn }}
+          EXPECTED_COMMIT: ${{ steps.target.outputs.expected_commit }}
+        run: |
+          set -euo pipefail
+
+          ACTUAL_TASK_DEFINITION=$(aws ecs describe-services \
+            --cluster fargate-cluster \
+            --services fargate-service \
+            --query 'services[0].taskDefinition' \
+            --output text)
+
+          if [ "$ACTUAL_TASK_DEFINITION" != "$EXPECTED_TASK_DEFINITION" ]; then
+            echo "Rollback verification failed"
+            echo "Expected task definition: $EXPECTED_TASK_DEFINITION"
+            echo "Actual task definition:   $ACTUAL_TASK_DEFINITION"
+            exit 1
+          fi
+
+          RESPONSE=$(curl --fail --silent --show-error \
+            http://fargate-alb-1382271171.ap-southeast-1.elb.amazonaws.com/version)
+
+          echo "Response: $RESPONSE"
+
+          ACTUAL_COMMIT=$(printf '%s' "$RESPONSE" | jq -r '.commit')
+
+          if [ "$ACTUAL_COMMIT" != "$EXPECTED_COMMIT" ]; then
+            echo "Rollback verification failed"
+            echo "Expected commit: $EXPECTED_COMMIT"
+            echo "Actual commit:   $ACTUAL_COMMIT"
+            exit 1
+          fi
+
+          echo "Rollback verified"
+          echo "Task definition: $ACTUAL_TASK_DEFINITION"
+          echo "Commit: $ACTUAL_COMMIT"
