@@ -12,7 +12,16 @@ export function createApp() {
   const app = express();
 
   // The ALB calls this endpoint to decide if the task is healthy.
+  //
+  // FAIL_HEALTHCHECK is a kill switch for Phase 5. When it is "true",
+  // the process keeps running but /healthz answers 500, so the ALB marks
+  // the task unhealthy and ECS stops it. It is read on every request,
+  // not at startup, so tests can flip it without rebuilding the app.
   app.get("/healthz", (_req: Request, res: Response) => {
+    if (process.env.FAIL_HEALTHCHECK === "true") {
+      res.status(500).json({ status: "failing" });
+      return;
+    }
     res.status(200).json({ status: "ok" });
   });
 
