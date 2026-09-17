@@ -1,35 +1,39 @@
 {
-    "family": "fargate-app",
-    "networkMode": "awsvpc",
-    "requiresCompatibilities": [
-        "FARGATE"
-    ],
-    "cpu": "256",
-    "memory": "512",
-    "executionRoleArn": "arn:aws:iam::080577529751:role/fargate-task-execution-role",
-    "taskRoleArn": "arn:aws:iam::080577529751:role/fargate-task-role",
-    "runtimePlatform": {
-        "operatingSystemFamily": "LINUX",
-        "cpuArchitecture": "X86_64"
-    },
-    "containerDefinitions": [
+  "family": "fargate-app",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::080577529751:role/fargate-task-execution-role",
+  "taskRoleArn": "arn:aws:iam::080577529751:role/fargate-task-role",
+  "runtimePlatform": {
+    "operatingSystemFamily": "LINUX",
+    "cpuArchitecture": "X86_64"
+  },
+  "containerDefinitions": [
+    {
+      "name": "app",
+      "image": "080577529751.dkr.ecr.ap-southeast-1.amazonaws.com/ci-cd-pipeline-ecs-fargate:df990af",
+      "essential": true,
+      "portMappings": [
         {
-            "name": "app",
-            "image": "080577529751.dkr.ecr.ap-southeast-1.amazonaws.com/ci-cd-pipeline-ecs-fargate:df990af",
-            "essential": true,
-            "portMappings": [
-                {
-                    "containerPort": 3000
-                }
-            ],
-            "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                    "awslogs-group": "/ecs/fargate-app",
-                    "awslogs-region": "ap-southeast-1",
-                    "awslogs-stream-prefix": "app"
-                }
-            }
+          "containerPort": 3000
         }
-    ]
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/fargate-app",
+          "awslogs-region": "ap-southeast-1",
+          "awslogs-stream-prefix": "app"
+        }
+      },
+      "environment": [
+        {
+          "name": "FAIL_HEALTHCHECK",
+          "value": "true"
+        }
+      ]
+    }
+  ]
 }
