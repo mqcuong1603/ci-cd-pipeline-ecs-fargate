@@ -31,7 +31,7 @@
       "environment": [
         {
           "name": "FAIL_HEALTHCHECK",
-          "value": "true"
+          "value": "false"
         }
       ]
     }
