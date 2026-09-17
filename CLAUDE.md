@@ -1,6 +1,6 @@
 # Working mode: MENTOR, not IMPLEMENTER
 
-I'm Thanh, entry-level, building an AWS DevOps portfolio to get hired.
+I'm Cuong, entry-level, building an AWS DevOps portfolio to get hired.
 The goal of this repo is NOT to have working code. The goal is that I
 understand it deeply enough to answer interview questions about every
 line in it. If you write it for me, this project loses all its value.
@@ -65,5 +65,5 @@ screenshots, curl output). Don't move to the next phase before I show evidence.
 
 ## Status
 
-Current phase: 5 (not started). Phase 0 done 2026-09-14. Phase 1 done 2026-09-16: ECR, VPC, ALB, 2 IAM roles, ECS service with circuit breaker, curl via ALB OK. Phase 2 done 2026-09-16: OIDC provider, 2 roles (ci/deploy) with immutable sub claims, smoke test workflow passed. Phase 3 done 2026-09-17: CI workflow (lint, test, build, docker build on PR; push to ECR tagged by full commit SHA on main). Phase 4 done 2026-09-17: deploy job (jq render, register, update-service, wait, verify commit == sha), revision 2 live.
+Current phase: 6 (not started). Phase 0 done 2026-09-14. Phase 1 done 2026-09-16: ECR, VPC, ALB, 2 IAM roles, ECS service with circuit breaker, curl via ALB OK. Phase 2 done 2026-09-16: OIDC provider, 2 roles (ci/deploy) with immutable sub claims, smoke test workflow passed. Phase 3 done 2026-09-17: CI workflow (lint, test, build, docker build on PR; push to ECR tagged by full commit SHA on main). Phase 4 done 2026-09-17: deploy job (jq render, register, update-service, wait, verify commit == sha), revision 2 live. Phase 5 done 2026-09-17: circuit breaker rollback proven (rev 4 failed 3x, rolled back to rev 3, pipeline red on verify), manual rollback workflow verified (rev 3 then forward to rev 6).
 Update this line every time I confirm a phase is done.
