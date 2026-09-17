@@ -8,3 +8,5 @@ Dockerfile
 .dockerignore
 README.md
 CLAUDE.md
+*.test.ts
+eslint.config.mjs
