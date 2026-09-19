@@ -1,0 +1,31 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ManageTaskDefinitions",
+      "Effect": "Allow",
+      "Action": ["ecs:RegisterTaskDefinition", "ecs:DescribeTaskDefinition"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DeployOnlyStagingService",
+      "Effect": "Allow",
+      "Action": ["ecs:UpdateService", "ecs:DescribeServices"],
+      "Resource": "arn:aws:ecs:ap-southeast-1:080577529751:service/fargate-cluster/fargate-service-staging"
+    },
+    {
+      "Sid": "PassOnlyProjectTaskRolesToEcs",
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": [
+        "arn:aws:iam::080577529751:role/fargate-task-execution-role",
+        "arn:aws:iam::080577529751:role/fargate-task-role"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "iam:PassedToService": "ecs-tasks.amazonaws.com"
+        }
+      }
+    }
+  ]
+}
