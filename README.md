@@ -96,7 +96,7 @@ The workflow validates that the revision is active, prints its image and environ
 
 The deploy roles may pass only the two project task roles, and only to `ecs-tasks.amazonaws.com`. This prevents a workflow from attaching arbitrary IAM roles to a task definition.
 
-The OIDC trust policies use exact `sub` claims rather than a repository-wide wildcard. Therefore, a staging job cannot assume the production role, even if someone adds a production command to the staging workflow.
+The OIDC trust policies use exact `sub` claims rather than a repository-wide wildcard. Therefore, a staging job cannot assume the production role, even if someone adds a production command to the staging workflow. The `sub` values use GitHub's immutable subject format, which includes the owner ID and repository ID rather than names alone, so a recycled username or repository name can never inherit access to these roles.
 
 ## Design decisions
 
