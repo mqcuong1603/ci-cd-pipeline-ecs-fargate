@@ -177,6 +177,18 @@ The events show repeated `Health checks failed with these codes: [500]`, the fai
 - [Manual rollback workflow](.github/workflows/rollback.yml)
 - [IAM policies and trust policies](infra/iam/)
 
+### Failed deployment caught by verification
+
+![Verify step failing after automatic rollback](docs/pipeline-red-verify.png)
+
+The service was stable, but `/version` returned the previous commit. The pipeline went red instead of green.
+
+### Production requires approval
+
+![Production job waiting for review](docs/production-waiting.png)
+
+A deploy or rollback to production pauses until a reviewer approves. No OIDC token is issued until then.
+
 ## What I would do next
 
 - Add HTTPS with ACM and Route 53, then use hostname-based routing instead of public ports `80` and `8080`.
@@ -187,3 +199,6 @@ The events show repeated `Health checks failed with these codes: [500]`, the fai
 - Store runtime secrets in AWS Secrets Manager or Systems Manager Parameter Store.
 - Add dependency, container-image, and static-security scanning to CI.
   I would do next
+- Replace the duplicated staging and production deploy jobs with a reusable workflow.
+- Pin GitHub Actions to commit SHAs instead of version tags.
+- Add an ECR lifecycle policy that expires untagged images while keeping enough SHA-tagged images for rollback.
