@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="780" viewBox="0 0 1600 780" role="img" aria-labelledby="title desc">
+  <title id="title">GitHub Actions CI/CD pipeline</title>
+  <desc id="desc">Pull requests run tests without AWS access. Pushes to main build one commit-SHA-tagged Docker image, deploy it automatically to staging, verify it, wait for production approval, and deploy the same image to production.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#475569"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#059669"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+    <style>
+      text { font-family: Inter, Segoe UI, Arial, sans-serif; fill: #0f172a; }
+      .title { font-size: 30px; font-weight: 700; }
+      .subtitle { font-size: 15px; fill: #475569; }
+      .label { font-size: 16px; font-weight: 700; }
+      .body { font-size: 14px; }
+      .small { font-size: 12px; fill: #475569; }
+      .step { font-size: 13px; font-weight: 700; fill: #ffffff; }
+      .edge { fill: none; stroke: #475569; stroke-width: 2.5; marker-end: url(#arrow); }
+      .edge-green { fill: none; stroke: #059669; stroke-width: 3; marker-end: url(#arrowGreen); }
+      .edge-dashed { fill: none; stroke: #64748b; stroke-width: 2; stroke-dasharray: 7 6; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1600" height="780" fill="#f8fafc"/>
+  <text x="55" y="52" class="title">GitHub Actions CI/CD Pipeline</text>
+  <text x="55" y="80" class="subtitle">Test every change | build once | promote the same immutable image | verify the running commit</text>
+
+  <!-- Triggers -->
+  <rect x="50" y="145" width="210" height="82" rx="13" fill="#ffffff" stroke="#64748b" stroke-width="2" filter="url(#shadow)"/>
+  <circle cx="78" cy="171" r="15" fill="#475569"/>
+  <text x="78" y="176" text-anchor="middle" class="step">1</text>
+  <text x="155" y="177" text-anchor="middle" class="label">Pull request</text>
+  <text x="155" y="202" text-anchor="middle" class="small">target: main</text>
+
+  <rect x="50" y="280" width="210" height="82" rx="13" fill="#ffffff" stroke="#2563eb" stroke-width="2" filter="url(#shadow)"/>
+  <circle cx="78" cy="306" r="15" fill="#2563eb"/>
+  <text x="78" y="311" text-anchor="middle" class="step">1</text>
+  <text x="155" y="312" text-anchor="middle" class="label">Push to main</text>
+  <text x="155" y="337" text-anchor="middle" class="small">except ignored docs paths</text>
+
+  <!-- Tests -->
+  <rect x="345" y="205" width="260" height="105" rx="15" fill="#eef2ff" stroke="#4f46e5" stroke-width="2.5" filter="url(#shadow)"/>
+  <circle cx="375" cy="234" r="15" fill="#4f46e5"/>
+  <text x="375" y="239" text-anchor="middle" class="step">2</text>
+  <text x="475" y="239" text-anchor="middle" class="label">Test job</text>
+  <text x="475" y="266" text-anchor="middle" class="body">npm ci | lint | test | build</text>
+  <text x="475" y="290" text-anchor="middle" class="body">Docker build</text>
+
+  <!-- PR stop -->
+  <rect x="690" y="115" width="230" height="86" rx="13" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+  <text x="805" y="148" text-anchor="middle" class="label">Pull request stops here</text>
+  <text x="805" y="174" text-anchor="middle" class="body">No AWS credentials</text>
+  <text x="805" y="193" text-anchor="middle" class="small">No push and no deploy</text>
+
+  <!-- Build and ECR -->
+  <rect x="690" y="255" width="255" height="112" rx="15" fill="#fff7ed" stroke="#f97316" stroke-width="2.5" filter="url(#shadow)"/>
+  <circle cx="720" cy="285" r="15" fill="#f97316"/>
+  <text x="720" y="290" text-anchor="middle" class="step">3</text>
+  <text x="817" y="290" text-anchor="middle" class="label">Build and push</text>
+  <text x="817" y="317" text-anchor="middle" class="body">Build one Docker image</text>
+  <text x="817" y="341" text-anchor="middle" class="body">Tag = full commit SHA</text>
+  <text x="817" y="360" text-anchor="middle" class="small">OIDC CI role: ECR only</text>
+
+  <rect x="1060" y="255" width="235" height="112" rx="15" fill="#fff7ed" stroke="#f97316" stroke-width="2.5" filter="url(#shadow)"/>
+  <circle cx="1090" cy="285" r="15" fill="#f97316"/>
+  <text x="1090" y="290" text-anchor="middle" class="step">4</text>
+  <text x="1177" y="290" text-anchor="middle" class="label">Amazon ECR</text>
+  <text x="1177" y="318" text-anchor="middle" class="body">Immutable SHA tag</text>
+  <text x="1177" y="343" text-anchor="middle" class="body">Single release artifact</text>
+
+  <!-- Promotion row -->
+  <rect x="115" y="515" width="245" height="112" rx="15" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5" filter="url(#shadow)"/>
+  <circle cx="145" cy="545" r="15" fill="#2563eb"/>
+  <text x="145" y="550" text-anchor="middle" class="step">5</text>
+  <text x="237" y="550" text-anchor="middle" class="label">Deploy staging</text>
+  <text x="237" y="578" text-anchor="middle" class="body">Register new revision</text>
+  <text x="237" y="602" text-anchor="middle" class="body">Update staging service</text>
+  <text x="237" y="621" text-anchor="middle" class="small">staging OIDC role</text>
+
+  <rect x="425" y="515" width="220" height="112" rx="15" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5" filter="url(#shadow)"/>
+  <circle cx="455" cy="545" r="15" fill="#2563eb"/>
+  <text x="455" y="550" text-anchor="middle" class="step">6</text>
+  <text x="535" y="550" text-anchor="middle" class="label">Verify staging</text>
+  <text x="535" y="580" text-anchor="middle" class="body">Wait until stable</text>
+  <text x="535" y="604" text-anchor="middle" class="body">/version == SHA</text>
+
+  <polygon points="780,505 900,571 780,637 660,571" fill="#fef3c7" stroke="#d97706" stroke-width="2.5" filter="url(#shadow)"/>
+  <circle cx="708" cy="535" r="15" fill="#d97706"/>
+  <text x="708" y="540" text-anchor="middle" class="step">7</text>
+  <text x="780" y="561" text-anchor="middle" class="label">Production</text>
+  <text x="780" y="583" text-anchor="middle" class="label">approval</text>
+  <text x="780" y="606" text-anchor="middle" class="small">required reviewer</text>
+
+  <rect x="930" y="515" width="245" height="112" rx="15" fill="#dcfce7" stroke="#059669" stroke-width="2.5" filter="url(#shadow)"/>
+  <circle cx="960" cy="545" r="15" fill="#059669"/>
+  <text x="960" y="550" text-anchor="middle" class="step">8</text>
+  <text x="1052" y="550" text-anchor="middle" class="label">Deploy production</text>
+  <text x="1052" y="578" text-anchor="middle" class="body">Use the same ECR image</text>
+  <text x="1052" y="602" text-anchor="middle" class="body">Update production service</text>
+  <text x="1052" y="621" text-anchor="middle" class="small">production OIDC role</text>
+
+  <rect x="1240" y="515" width="245" height="112" rx="15" fill="#dcfce7" stroke="#059669" stroke-width="2.5" filter="url(#shadow)"/>
+  <circle cx="1270" cy="545" r="15" fill="#059669"/>
+  <text x="1270" y="550" text-anchor="middle" class="step">9</text>
+  <text x="1362" y="550" text-anchor="middle" class="label">Verify production</text>
+  <text x="1362" y="580" text-anchor="middle" class="body">Wait until stable</text>
+  <text x="1362" y="604" text-anchor="middle" class="body">/version == SHA</text>
+
+  <!-- Edges -->
+  <path d="M260 186 H305 V240 H345" class="edge"/>
+  <path d="M260 321 H305 V275 H345" class="edge"/>
+  <path d="M605 235 H645 V158 H690" class="edge-dashed"/>
+  <text x="642" y="146" text-anchor="middle" class="small">PR</text>
+  <path d="M605 280 H690" class="edge"/>
+  <text x="647" y="270" text-anchor="middle" class="small">main</text>
+  <path d="M945 311 H1060" class="edge"/>
+
+  <!-- Long connection from ECR to staging -->
+  <path d="M1177 367 V430 H237 V515" class="edge-green"/>
+  <rect x="620" y="411" width="205" height="32" rx="16" fill="#ecfdf5" stroke="#059669"/>
+  <text x="722" y="432" text-anchor="middle" class="small">promote the same SHA image</text>
+
+  <path d="M360 571 H425" class="edge-green"/>
+  <path d="M645 571 H660" class="edge-green"/>
+  <path d="M900 571 H930" class="edge-green"/>
+  <path d="M1175 571 H1240" class="edge-green"/>
+
+  <!-- Footer -->
+  <rect x="115" y="685" width="1370" height="52" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="800" y="708" text-anchor="middle" class="label">Every deploy: render task definition -&gt; register immutable revision -&gt; update service -&gt; wait -&gt; verify commit</text>
+  <text x="800" y="729" text-anchor="middle" class="small">A stable ECS service is not enough; the final SHA comparison proves that the requested release is running.</text>
+</svg>

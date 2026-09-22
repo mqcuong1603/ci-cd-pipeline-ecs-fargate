@@ -17,38 +17,7 @@ The project also demonstrates least-privilege AWS access with GitHub OIDC, zero-
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    User["User / curl"] --> Internet["Internet"]
-
-    subgraph AWS["AWS - ap-southeast-1"]
-        ECR[("Amazon ECR<br/>SHA-tagged images")]
-        Logs[("CloudWatch Logs<br/>/ecs/fargate-app")]
-
-        subgraph VPC["VPC 10.0.0.0/16"]
-            IGW["Internet Gateway"]
-
-            subgraph Public["Two public subnets - ap-southeast-1a / 1b"]
-                ALB["Internet-facing ALB<br/>SG_ALB: ports 80 and 8080"]
-                ProdTask["Production ECS service<br/>1 Fargate task<br/>app :3000"]
-                StageTask["Staging ECS service<br/>1 Fargate task<br/>app :3000"]
-            end
-
-            ProdTG["Production target group<br/>IP targets - /healthz"]
-            StageTG["Staging target group<br/>IP targets - /healthz"]
-        end
-    end
-
-    Internet --> IGW --> ALB
-    ALB -->|"HTTP :80"| ProdTG
-    ALB -->|"HTTP :8080"| StageTG
-    ProdTG -->|"private task IP :3000"| ProdTask
-    StageTG -->|"private task IP :3000"| StageTask
-    ProdTask -. "pull image" .-> ECR
-    StageTask -. "pull same image" .-> ECR
-    ProdTask -. "stdout / stderr" .-> Logs
-    StageTask -. "stdout / stderr" .-> Logs
-```
+![AWS ECS Fargate runtime architecture](docs/architecture.svg)
 
 The ALB spans both public subnets. Each ECS service has a desired count of one, and ECS may place its task in either subnet. With `awsvpc` networking, every task receives its own network interface and private IP, so both target groups use `target-type: ip`.
 
@@ -65,19 +34,7 @@ Production uses listener port `80`; staging uses port `8080` on the same ALB.
 
 ## Pipeline
 
-```mermaid
-flowchart LR
-    PR["Pull request to main"] --> Test["Install, lint, test,<br/>build, Docker build"]
-    Main["Push to main"] --> Test
-    Test -->|"pull request"| Stop["No AWS access<br/>No deployment"]
-    Test -->|"push to main"| Build["Build image once"]
-    Build --> ECR["Push full-SHA tag to ECR"]
-    ECR --> Staging["Deploy staging"]
-    Staging --> VerifyS["Verify staging /version"]
-    VerifyS --> Approval{"Production approval"}
-    Approval --> Production["Deploy the same image"]
-    Production --> VerifyP["Verify production /version"]
-```
+![GitHub Actions CI/CD pipeline](docs/pipeline.svg)
 
 ### Pull requests
 
